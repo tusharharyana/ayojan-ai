@@ -14,13 +14,35 @@ credentials = service_account.Credentials.from_service_account_file(
 service = build('calendar', 'v3', credentials=credentials)
 
 def get_available_slots(date: str):
-    # Dummy logic
-    slots = [
-        f"{date}T10:00:00",
-        f"{date}T11:00:00",
-        f"{date}T15:00:00",
-    ]
-    return slots
+    start_of_day = f"{date}T00:00:00Z"
+    end_of_day = f"{date}T23:59:59Z"
+
+    events_result = service.events().list(
+        calendarId=CALENDAR_ID,
+        timeMin=start_of_day,
+        timeMax=end_of_day,
+        singleEvents=True,
+        orderBy="startTime"
+    ).execute()
+
+    events = events_result.get("items", [])
+
+    booked_times = []
+    for event in events:
+        start_time = event["start"].get("dateTime", "")
+        if start_time:
+            booked_times.append(start_time[:16])
+
+    # Define working hours
+    working_hours = [f"{date}T{hour:02d}:00" for hour in range(1, 24)]  # 1AM to 11PM
+
+    available_slots = []
+    for slot in working_hours:
+        if slot not in booked_times:
+            available_slots.append(slot)
+
+    return available_slots
+
 
 def book_slot(start_time: str, summary: str = "AyojanAI Booking"):
     start = datetime.fromisoformat(start_time)

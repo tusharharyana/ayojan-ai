@@ -14,34 +14,46 @@ def run_gemini_agent(message: str):
     try:
         today_str = datetime.today().strftime("%Y-%m-%d")
 
-        # Step 1: Ask Gemini to extract intent, date, time, title
         prompt = f"""
             Today is {today_str}.
 
-            You are a meeting assistant. From this user message, extract:
-            1. Intent (book/view slots)
-            2. Date in YYYY-MM-DD
-            3. Time in HH:MM (24hr format)
-            4. Meeting title (optional)
+            You are a helpful meeting assistant. From this user message, extract:
+
+            1. intent: 'view' or 'book'
+            2. date: in YYYY-MM-DD format
+            3. time: in HH:MM 24hr format (if relevant)
+            4. title: short meeting title (if booking), or just say 'NA' if not applicable
 
             Message: {message}
 
-            Return only this format:
-            intent: <view/book>
+            Return exactly in this format:
+            intent: <book/view>
             date: <YYYY-MM-DD>
             time: <HH:MM>
-            title: <optional>
+            title: <Meeting title or NA>
             """
+
 
         response = model.generate_content(prompt)
         parsed = response.text.strip()
 
-        # Extract using regex
-        intent = re.search(r"intent:\s*(\w+)", parsed).group(1).lower()
-        date = re.search(r"date:\s*([\d\-]+)", parsed).group(1)
-        time = re.search(r"time:\s*([\d:]+)", parsed).group(1)
+        # Extract intent
+        intent_match = re.search(r"intent:\s*(\w+)", parsed)
+        intent = intent_match.group(1).lower() if intent_match else "unknown"
+
+        # Extract date
+        date_match = re.search(r"date:\s*([\d\-]+)", parsed)
+        date = date_match.group(1) if date_match else datetime.today().strftime("%Y-%m-%d")
+
+        # Extract time
+        time_match = re.search(r"time:\s*([\d:]+)", parsed)
+        time = time_match.group(1) if time_match else "10:00"
+
+        # Extract title
         title_match = re.search(r"title:\s*(.+)", parsed)
-        title = title_match.group(1) if title_match else "AyojanAI Booking"
+        title = title_match.group(1).strip() if title_match else "AyojanAI Booking"
+        if title.lower() in ["<optional>", "optional", "none", ""]:
+            title = "AyojanAI Booking"
 
         datetime_str = f"{date}T{time}:00"
 
