@@ -57,9 +57,9 @@ def run_gemini_agent(message: str):
             return f""" 
                 ✅ **Meeting Booked Successfully**
 
-                **📝 Title:** {title}  
-                **📅 Date:** `{date}`  
-                **⏰ Time:** `{time}`  
+                **Title:** {title}  
+                **Date:** `{date}`  
+                **Time:** `{time}`  
 
                 🔗 [Click here to view it in your calendar]({link})
                 """
