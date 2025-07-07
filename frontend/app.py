@@ -1,11 +1,13 @@
 import streamlit as st
-import requests
+import requests, os
 
 st.set_page_config(
     page_title="AyojanAI – Smart Meeting Assistant",
     page_icon="📅",
     layout="centered"
 )
+
+API_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.markdown("""
     <style>
@@ -60,7 +62,7 @@ if user_input:
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                res = requests.post("http://localhost:8000/chat", json={"message": user_input}, timeout=15)
+                res = requests.post("{API_URL}/chat", json={"message": user_input}, timeout=15)
                 if res.status_code == 200:
                     data = res.json()
                     bot_reply = data.get("response", "Unexpected response from server.")
