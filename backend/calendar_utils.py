@@ -3,7 +3,11 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 
-SERVICE_ACCOUNT_FILE = '/ayojan-ai/credentials/service_account.json'
+if os.getenv("RENDER"):
+    SERVICE_ACCOUNT_FILE = "/etc/secrets/service_account.json"
+else:
+    SERVICE_ACCOUNT_FILE = '/ayojan-ai/credentials/service_account.json'
+    
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID", "")
