@@ -62,7 +62,7 @@ if user_input:
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                res = requests.post("{API_URL}/chat", json={"message": user_input}, timeout=15)
+                res = requests.post(f"{API_URL}/chat", json={"message": user_input}, timeout=15)
                 if res.status_code == 200:
                     data = res.json()
                     bot_reply = data.get("response", "Unexpected response from server.")
